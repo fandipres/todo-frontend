@@ -1,29 +1,45 @@
 <template>
   <div>
-    <div>Selamat Datang</div>
+    <h1>Berikut adalah daftar tugas kita</h1>
     <ul>
-      <li v-for="item in todos">{{item.desc}}</li>
+      <li v-for="item in todos" :key="item.id">{{item.deskripsi}} <button @click="hapus(item.id)">x</button></li>
     </ul>
     <input v-model="myText"/>
-    <button @click="addTodos">Add</button>
+    <button @click="tambah">Add</button>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   data: function(){
     return {
-      todos: [
-        {desc: 'Makan Durian'},
-        {desc: 'Makan Tempe'},
-        {desc: 'Coding JS'}
-      ],
-      myText: ""
+      todos: [],
+      myText: ''
     }
   },
+  created: function(){
+    axios.get('http://localhost:3000/todo')
+    .then((response) => {
+      this.todos = response.data
+    })
+  },
   methods:{
-    addTodos: function(){
-      this.todos.push({desc: this.myText})    
+    tambah: function(){
+      const newItem = {deskripsi: this.myText}
+      axios.post('http://localhost:3000/todo', newItem)
+      .then(() => {
+        this.todos.push(newItem)
+        window.location.reload()
+      })
+    },
+    hapus: function(id){
+      var index = this.todos.findIndex(obj => obj.id === id)
+      axios.delete(`http://localhost:3000/todo/${id}`)
+      .then(() => {
+        this.todos.splice(index, 1)
+      })
     }
   }
 }
