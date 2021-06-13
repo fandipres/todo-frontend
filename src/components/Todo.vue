@@ -26,6 +26,11 @@ export default {
     .then((response) => {
       this.todos = response.data
     })
+    .catch((error) =>{
+      if(error.response.status === 401){
+        alert("Please login to see this page.")
+      }
+    })
   },
   methods:{
     tambah: function(){
@@ -36,6 +41,11 @@ export default {
       .then((response) => {
         this.todos.push(response.data)
       })
+      .catch((error) =>{
+        if(error.response.status === 401){
+          alert("Please login to do this action.")
+        }
+      })
     },
     hapus: function(id){
       const username = localStorage.getItem('usr')
@@ -44,6 +54,11 @@ export default {
       axios.delete(`http://localhost:3000/todo/${id}`, {headers: {username, password}})
       .then(() => {
         this.todos.splice(index, 1)
+      })
+      .catch((error) =>{
+        if(error.response.status === 401){
+          alert("Please login to see this page.")
+        }
       })
     }
   }
