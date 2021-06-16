@@ -28,7 +28,7 @@ export default {
     wsClient.onmessage = (event) => {
       // console.log(event.data)
       var msg = JSON.parse(event.data)
-      this.users = msg
+      this.todos = msg
     }
     wsClient.onclose = function() {
       wsClient = null
