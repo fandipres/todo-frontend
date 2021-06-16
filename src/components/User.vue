@@ -13,6 +13,7 @@
 
 <script>
 import axios from 'axios'
+var wsClient
 
 export default {
   data: function(){
@@ -23,13 +24,26 @@ export default {
     }
   },
   created: function(){
+    wsClient = new WebSocket("ws://localhost:3000/user")
+    wsClient.onopen = function() {
+      console.log("connected")
+    }
+    wsClient.onmessage = (event) => {
+      // console.log(event.data)
+      var msg = JSON.parse(event.data)
+      this.users = msg
+    }
+    wsClient.onclose = function() {
+      wsClient = null
+    }
+
     const username = localStorage.getItem('usr')
     const password = localStorage.getItem('pwd')
     axios.get('http://localhost:3000/user', {headers: {username, password}})
     .then((response) => {
       this.users = response.data
     })
-    .catch((error) =>{
+    .catch((error) => {
       if(error.response.status === 401){
         alert("Please login to see this page.")
       }
@@ -42,7 +56,7 @@ export default {
       const newItem = {username: this.username, password: this.password}
       axios.post('http://localhost:3000/user', newItem, {headers: {username, password}})
       .then((response) => {
-        this.users.push(response.data)
+        wsClient.send(JSON.stringify(response.data))
       })
       .catch((error) => {
           if(error.response.status === 401){
@@ -52,14 +66,15 @@ export default {
             alert("This username is already taken.")
           }
       })
+      this.username = ''
+      this.password = ''
     },
     hapus: function(id){
       const username = localStorage.getItem('usr')
       const password = localStorage.getItem('pwd')
-      var index = this.users.findIndex(obj => obj.id === id)
       axios.delete(`http://localhost:3000/user/${id}`, {headers: {username, password}})
       .then((response) => {
-        this.users.splice(index, 1)
+        wsClient.send(JSON.stringify(response.data))
       })
       .catch((error) => {
         if(error.response.status === 401){
