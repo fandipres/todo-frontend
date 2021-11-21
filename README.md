@@ -1,2 +1,2 @@
 # todo_frontend
-Making a simple todo frontend apps for my homework.
+A simple todo frontend apps for my homework.
